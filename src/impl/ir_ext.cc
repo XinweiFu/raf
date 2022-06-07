@@ -107,6 +107,21 @@ std::string AsText(const ObjectRef& node, bool show_meta_data) {
         if (constant) {
           if (constant->value.defined()) {
             os << constant->value;
+
+            if (constant->IsTensor() &&
+                tvm::runtime::DLDataType2String(Downcast<TensorValue>(constant->value)->tensor->dtype) == "bfloat16") {
+              unsigned short* p = (unsigned short*) (Downcast<TensorValue>(constant->value)->tensor->data);
+              unsigned short value = *p;
+              union
+              {
+                unsigned int u;
+                float f;
+              } tmp;
+              tmp.u = value << 16;
+              float value_float = tmp.f;
+              os << " bf16_val:" << value_float;
+            }
+
           } else {
             os << "nullptr";
           }
