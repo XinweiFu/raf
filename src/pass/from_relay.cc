@@ -197,7 +197,7 @@ struct ConvertEmbedding : RelayPattern {
 
 static const std::unordered_map<String, std::shared_ptr<RelayPattern>> composite_patterns{
     {String("dense"), std::shared_ptr<RelayPattern>(new ConvertDense)},
-    {String("gelu"), std::shared_ptr<RelayPattern>(new CompositeGelu)},
+    //{String("gelu"), std::shared_ptr<RelayPattern>(new CompositeGelu)},
     {String("embedding"), std::shared_ptr<RelayPattern>(new ConvertEmbedding)}};
 
 // We set the parameters to be RAF model attributes, so their names
