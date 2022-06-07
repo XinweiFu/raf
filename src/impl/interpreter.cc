@@ -177,6 +177,26 @@ class Interpreter final : public ExprFunctor<Value(const Expr& n)>, public Execu
       Value output_value;
       WITH_BASE_PROFILER(call_values->device, opv->op->name, "SchedulingCommunication", {},
                          { output_value = InvokePrimitive(call_values); });
+      auto node = call->args[0].as<ConstantNode>();
+      if (node && node->IsTensor() &&
+          tvm::runtime::DLDataType2String(Downcast<TensorValue>(node->value)->tensor->dtype) == "float32") {
+        float* p = (float*) (Downcast<TensorValue>(node->value)->tensor->data);
+        printf("tensor value 0:\t");
+        printf("%f\n", *p);
+        if (auto tensor_obj = output_value.as<TensorValueObj>()) {
+            unsigned short* p = (unsigned short*) tensor_obj->tensor->data;
+            unsigned short value = *p;
+            union
+            {
+              unsigned int u;
+              float f;
+            } tmp;
+            tmp.u = value << 16;
+            float value_float = tmp.f;
+            printf("tensor value 1:\t");
+            printf("%f\n", value_float);
+        }
+      }
       return output_value;
     }
     LOG(FATAL) << "ValueError: type " << call_values->callee->GetTypeKey() << " is not callable";
